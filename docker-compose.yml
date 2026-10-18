@@ -1,1 +1,2 @@
-
+# docker-compose.yml
+# Description: Docker Compose configuration to spin up a local PostgreSQL container for database persistence during development and testing.
