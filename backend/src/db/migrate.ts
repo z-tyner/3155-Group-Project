@@ -1,4 +1,4 @@
 /**
  * @file migrate.ts
- * @description Database migration utility script that reads and executes schema.sql against the target PostgreSQL instance.
+ * @description Runs Kysely database migrations for the PostgreSQL database.
  */
