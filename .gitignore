@@ -1,2 +1,4 @@
 # .gitignore
 # Description: Specifies intentionally untracked files to ignore (node_modules, build artifacts, environment secrets).
+node_modules/
+package-lock.json
