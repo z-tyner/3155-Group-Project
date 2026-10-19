@@ -1,2 +1,2 @@
 -- schema.sql
--- Description: PostgreSQL schema definitions for users, characters, cards, game runs, and the run_cards join table with foreign key relationships.
+-- Description: PostgreSQL schema definitions for users, posts, comments, characters, cards, game runs, and the run_cards join table with foreign key relationships.
