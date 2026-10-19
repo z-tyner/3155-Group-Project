@@ -1,2 +1,15 @@
 // backend/tsconfig.json
 // Description: TypeScript compiler options and project compilation settings for the Node.js/Express backend.
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": ["node"],
+    "outDir": "dist"
+  },
+  "include": ["src", "tests"]
+}

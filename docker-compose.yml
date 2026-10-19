@@ -1,2 +1,17 @@
 # docker-compose.yml
 # Description: Docker Compose configuration to spin up a local PostgreSQL container for database persistence during development and testing.
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRESS_DB: rat-game
+    ports: 
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresq1/data
+
+volumes:
+  pgdata:

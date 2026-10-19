@@ -1,5 +1,5 @@
-{
-  "dependencies": {
-    "kysely": "^0.29.7"
-  }
-}
+   {
+     "dependencies": {
+       "kysely": "^0.29.7"
+     }
+   }

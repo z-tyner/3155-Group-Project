@@ -1,1 +1,27 @@
-
+{
+  "name": "backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "migrate": "tsx src/db/migrate.ts latest",
+    "migrate:down": "tsx src/db/mirgrate.ts down"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "kysely": "^0.29.7",
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.11.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.0",
+    "@types/jest": "^29.5.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}
