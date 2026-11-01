@@ -1,7 +1,6 @@
 /**
  * @file commentService.ts
- * @description Manages business logic for creating, retrieving,
- * updating, and deleting forum comments.
+ * @description Manages business logic for creating, retrieving, updating, and deleting forum comments.
  */
 
 import { db } from "../config/db.js";
