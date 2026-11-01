@@ -30,7 +30,7 @@ export async function createPost(data: CreatePostData) {
         .returningAll()
         .executeTakeFirstOrThrow();
 
-  return post;
+    return post;
 }
 
 // Retrieve all posts
@@ -41,7 +41,7 @@ export async function getAllPosts() {
         .orderBy("created_at", "desc")
         .execute();
 
-  return posts;
+    return posts;
 }
 
 // Retrieve a single post by ID
@@ -52,7 +52,7 @@ export async function getPostById(postId: number) {
         .where("id", "=", postId)
         .executeTakeFirst();
 
-  return post ?? null;
+    return post ?? null;
 }
 
 // Update an existing post
@@ -65,7 +65,7 @@ export async function updatePost(postId: number, userId: number, data: UpdatePos
         .returningAll()
         .executeTakeFirst();
 
-  return post ?? null;
+    return post ?? null;
 }
 
 // Delete an existing post
@@ -77,5 +77,5 @@ export async function deletePost(postId: number, userId: number) {
         .returning("id")
         .executeTakeFirst();
 
-  return deletedPost !== undefined;
+    return deletedPost !== undefined;
 }
