@@ -71,9 +71,33 @@ export async function createUser(username?: string): Promise<{ id: number; usern
 export async function createCharacter(user: { id: number }, title = "Test Rat"): Promise<{ id: number; title: string }> {
     return await db
         .insertInto("characters")
-        .values({ user_id: user.id, title, health: 100, speed: 5, attack_power: 2, sprite_url: "rat.png" })
+        .values({
+            user_id: user.id,
+            title,
+            hp: 100,
+            attack: 10,
+            defense: 5,
+            crit_chance: 5,
+            armor_piercing: false,
+            is_preset: false,
+            sprite_url: "rat.png",
+        })
         .returning(["id", "title"])
         .executeTakeFirstOrThrow();
+}
+
+// A valid character body; override any field per test
+export function characterBody(overrides: Record<string, unknown> = {}) {
+    return {
+        title: "Swift Rogue",
+        hp: 100,
+        attack: 15,
+        defense: 5,
+        crit_chance: 20,
+        armor_piercing: true,
+        sprite_url: "rogue.png",
+        ...overrides,
+    };
 }
 
 // A valid card body; override any field per test

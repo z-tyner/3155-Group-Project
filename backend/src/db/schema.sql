@@ -12,11 +12,14 @@ CREATE TABLE characters(
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users (id),
     title TEXT NOT NULL,
-    health INTEGER NOT NULL,
-    speed INTEGER NOT NULL,
-    attack_power DOUBLE PRECISION NOT NULL,
+    hp INTEGER NOT NULL,
+    attack DOUBLE PRECISION NOT NULL,
+    defense DOUBLE PRECISION NOT NULL DEFAULT 0,
+    crit_chance DOUBLE PRECISION NOT NULL DEFAULT 0,
+    armor_piercing BOOLEAN NOT NULL DEFAULT false,
+    is_preset BOOLEAN NOT NULL DEFAULT false,
     sprite_url TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL
+    created_at TIMESTAMP NOT NULL DEFAULT now()
 );
 
 CREATE TABLE cards(
