@@ -25,7 +25,7 @@ CREATE TABLE cards(
     title TEXT NOT NULL,
     description TEXT NOT NULL,
     effect_type TEXT NOT NULL,
-    value TEXT NOT NULL,
+    value DOUBLE PRECISION NOT NULL,
     image_url TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL
 );
@@ -35,6 +35,14 @@ CREATE TABLE runs(
     user_id INTEGER REFERENCES users (id),
     character_id INTEGER REFERENCES characters (id),
     score DOUBLE PRECISION NOT NULL,
-    level_reached TEXT NOT NULL,
-    completed_at TIMESTAMP NOT NULL
+    level_reached INTEGER NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    completed_at TIMESTAMP
+);
+
+CREATE TABLE run_cards(
+    run_id INTEGER NOT NULL REFERENCES runs (id) ON DELETE CASCADE,
+    card_id INTEGER NOT NULL REFERENCES cards (id),
+    quantity INTEGER NOT NULL DEFAULT 1 CHECK (quantity > 0),
+    PRIMARY KEY (run_id, card_id)
 );
