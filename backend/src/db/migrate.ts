@@ -4,10 +4,32 @@
  */
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import {fileURLToPath } from 'node:url';
-import {FileMigrationProvider, Migrator } from 'kysely/migration';
+import {fileURLToPath, pathToFileURL } from 'node:url';
+import { Migrator, type Migration, type MigrationProvider } from 'kysely/migration';
 import {db} from '../config/db.js';
 
+
+// Loads every .ts/.js file in the migrations folder. Used instead of Kysely's
+// FileMigrationProvider because that passes raw paths to import(), which fails
+// on Windows (C:\...). Paths are converted to file:// URLs first.
+class MigrationFolderProvider implements MigrationProvider {
+    constructor(private folder: string) {}
+
+    async getMigrations(): Promise<Record<string, Migration>> {
+        const migrations: Record<string, Migration> = {};
+        const files = await fs.readdir(this.folder);
+
+        for (const file of files) {
+            if (!/\.(ts|js)$/.test(file) || file.endsWith('.d.ts')) continue;
+
+            const migration = await import(pathToFileURL(path.join(this.folder, file)).href);
+            // Name is the file name without extension, e.g. "0001-init"
+            migrations[file.replace(/\.(ts|js)$/, '')] = migration;
+        }
+
+        return migrations;
+    }
+}
 
 async function main() {
     const direction = process.argv[2] ?? 'latest';
@@ -18,11 +40,9 @@ async function main() {
 
     const migrator = new Migrator({
         db,
-        provider: new FileMigrationProvider({
-            fs,
-            path,
-            migrationFolder: path.join(path.dirname(fileURLToPath(import.meta.url)),'migrations'),
-        })
+        provider: new MigrationFolderProvider(
+            path.join(path.dirname(fileURLToPath(import.meta.url)), 'migrations')
+        ),
     });
 
     const { error, results } = 
