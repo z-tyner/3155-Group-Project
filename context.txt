@@ -1,0 +1,91 @@
+Project Requirements --
+You will create a web application forum, the domain of which is up to your team. Your web application must contain the following features by the end of the semester:
+
+Be developed in TypeScript with Node.js, Express, and React
+User signup, login, and session
+A minimum of three CRUD resources (a user resource + at least 2 more full CRUD resources) with relationships between them and with related database tables (ex. post and comment). As long as you have all 3 full CRUD resources, you can also also have additional resources that implement part of CRUD, but 3, including user, need to be implement all of CRUD.
+Several pages/views (view all posts, view single post, create, edit, etc.)
+Consistent styling, optionally using a CSS framework like Material and/or custom CSS/Tailwind
+A backend test suite at least covering the fundamental features
+Deployment to the cloud for online access with a deployed Postgres database (ex. Render)
+At least one "extra" feature. For each additional extra feature, up to 3, there are bonus points:
+    Utilizing DevOps for automated testing and/or deployment
+    Use of object storage (ex. storing user uploaded images/videos in S3)
+    Integrating with an external API (ex. Google Maps)
+    Using a machine learning model on the backend
+    Implementing real auth with an external provider (ex. Google login with OAuth2 and OpenID Connect)
+    etc. 
+
+Project Format and Logic --
+- Overview
+    - This is a 2D rougelike game in a similar style to pokemon.
+- Player and enemy stats
+    - Attack - How much damage is dealt to an enemy
+    - Defence - How much incoming damage is mitigated [Damage reduction = Defence / (Defence + 10)]
+    - HP - Health of character. Entity is defeated once HP is depleted
+    - Armor piercing - Attack ignores defence mitigation and only deals true HP. Boolean value
+    - Critical hit % - Chance that the damage of an attack is doubled
+    - Accuracy - Chance that an attack hits an enemy
+- Enemy unique stats    
+    - Item Drop Chance - Chance that the enemy drops an item upon death
+    - XP Drop Amount - How much XP defeating the enemy grants to the player. Is multiplied by the current level. (Higher levels grant more XP per enemy)
+- Player unique stats   
+    - Luck - Higher luck = higher chance of a higher value card spawning
+    - Speed - Determines if the player has the first turn or not. Boolean value
+- Combat system
+    - Entire game is split into levels that the player progresses through. These levels have 'waves' of enemies. These waves are created by having a pool of available enemies with spawn chances to make each run unique, but still have a sense of continuous progression.
+    - A player can choose between combat and item usage on their turn. Choosing combat will display combat options to choose from that the player has acquired. These can be defensive (Like a shield for the next turn) or offensive. Offensive options will need to have a target selected.
+- Loot and card mechanics
+    - When an enemy is defeated, they have a small chance to drop an item, the quality of which is dependant on the level
+    - When a level is cleared (All waves have been defeated), 3 power-up cards are presented to the player from a pool of options. The player picks 1 card. When a boss is defeated, an additional 3 card option is presented.
+- XP and Levelling 
+    - When an enemy is defeated, they grant some amount of XP depending on what type of unit it is. (Tougher enemies will grant more XP)
+    - When the player reaches an XP threshold, they can allocate stat points to increasing their stats. More stat points are granted depending on how high the level reached is.
+- Main menu options 
+    - Continue Journey
+        - Player can select from previously created journies to resume. Game saves progress after every level completion
+    - Start New Journey
+        - Player is presented with some journey options:
+            - What custom content they created to include in the run (Checkboxes)
+            - Character selector (Choose between a couple preset characters and any custom ones)
+            - Cheats Enabled Y/N
+    - Options
+        - Volume, etc
+    - Custom Content 
+        - Custom character creation
+            - Allows a user to use sliders to create a character with custom stats
+        - The Grand Mutator
+            - For creating custom cards (The power-ups presented to player upon level completion) by typing in a text box. The message is sent to an AI that implements it into the game, as well as creating custom art for it. Example implementation: 
+            // server/api/generate-card.js (Runs securely on your server)
+export async function POST(req, res) {
+  const { userPrompt } = req.body;
+
+  // 1. Call Text LLM (using system prompt for structured JSON)
+  const textResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: { "Authorization": `Bearer ${process.env.GROQ_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        { role: "system", content: "You are a game mechanics parser. Return ONLY JSON with keys: name, cost, attack, defense, artPrompt." },
+        { role: "user", content: userPrompt }
+      ],
+      response_format: { type: "json_object" }
+    })
+  });
+  const cardData = JSON.parse((await textResponse.json()).choices[0].message.content);
+
+  // 2. Call Image API using the generated art prompt
+  const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(cardData.artPrompt)}?width=512&height=512&nologo=true`;
+
+  // 3. Return everything safely to the frontend browser
+  return res.json({ ...cardData, imageUrl });
+}
+The AI call should ensure the code is non-malicous and abides by content moderation
+    - Social
+        - Leaderboard
+            - Contains top runs. Decided by progress (Which level the user got to, or if they completed the game) and XP acquired
+        - Forums
+            - Where a user can post, read, and comment on articles. There is a pinned 'Guide' forum post that contains basic information about the game.
+    - Log Out
+        - Signs the user out and sends them back to the login screen
