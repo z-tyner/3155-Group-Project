@@ -20,6 +20,12 @@ This directory contains static assets for the 2D turn-based game. Because files 
   * `projectiles/`: Spells, arrows, or ranged projectiles.
   * `status/`: Buff/debuff indicators (shields, poison, stun, stat up/down).
 * **`backgrounds/`**: Static arena/stage backdrops (dungeons, arenas, fields) rendered behind combatants.
+* **`audio/`**: Audio files (.wav) for music and sound effects.
+  * `music/menu/`: Main menu background themes.
+  * `music/levels/`: Stage/level exploration themes.
+  * `music/monsters/`: Regular monster battle themes.
+  * `music/bosses/`: Boss encounter battle themes.
+  * `sfx/`: In-game sound effects (attack impacts, card activation, UI clicks).
 * **`ui/`**: In-game HUD elements.
   * `icons/`: Stat icons (HP heart, speed boot, sword/attack, shield).
   * `buttons/`: Turn controls (e.g. End Turn, Action triggers).
