@@ -15,4 +15,6 @@ function required(name: string): string {
 
 export const env = {
     DATABASE_URL: required('DATABASE_URL'),
+    JWT_SECRET: process.env.JWT_SECRET || 'dev-secret-key-3155-group-project',
+    JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
 };

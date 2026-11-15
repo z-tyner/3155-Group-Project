@@ -3,6 +3,7 @@
  * @description Express application setup, configuring global middleware (CORS, JSON parsing, error handling) and mounting API route endpoints.
  */
 import express from "express";
+import authRoutes from "./routes/authRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import cardRoutes from "./routes/cardRoutes.js";
 import characterRoutes from "./routes/characterRoutes.js";
@@ -12,6 +13,9 @@ import leaderboardRoutes from "./routes/leaderboardRoutes.js";
 const app = express();
 
 app.use(express.json());
+
+// Register auth endpoints
+app.use("/api/auth", authRoutes);
 
 // Register forum post endpoints
 app.use("/api/posts", postRoutes);
