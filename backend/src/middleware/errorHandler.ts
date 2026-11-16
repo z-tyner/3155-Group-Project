@@ -4,6 +4,7 @@
  */
 
 import type { Request, Response, NextFunction } from "express";
+import multer from "multer";
 
 /**
  * Handles errors forwarded by controllers and middleware.
@@ -21,6 +22,27 @@ export function errorHandler(
 
     // Log the error for debugging
     console.error("API Error:", err);
+    
+    // Handle Multer upload errors
+    if (err instanceof multer.MulterError) {
+        res.status(err.code === "LIMIT_FILE_SIZE" ? 413 : 400).json({
+            message: err.code === "LIMIT_FILE_SIZE"
+                ? "Uploaded file exceeds the 5 MB limit."
+                : "Invalid file upload."
+        });
+        return;
+    }
+
+    // Handle invalid image file types
+    if (
+        err instanceof Error &&
+        err.message.startsWith("Invalid file type.")
+    ) {
+        res.status(400).json({
+            message: err.message
+        });
+        return;
+    }
 
     // Handle PostgreSQL unique constraint violations
     if (isDatabaseError(err, "23505")) {
