@@ -7,11 +7,11 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRESS_DB: rat-game
+      POSTGRES_DB: rat-game
     ports: 
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresq1/data
+      - pgdata:/var/lib/postgresql/data
 
 volumes:
   pgdata:

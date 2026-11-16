@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
     "migrate": "tsx src/db/migrate.ts latest",
     "migrate:down": "tsx src/db/migrate.ts down",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand"
