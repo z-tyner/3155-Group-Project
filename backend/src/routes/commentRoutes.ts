@@ -4,6 +4,8 @@
  */
 
 import { Router } from "express";
+import { authenticateToken } from "../middleware/auth.js";
+
 import {
     createComment,
     getCommentsByPostId,
@@ -21,12 +23,12 @@ router.get("/posts/:postId/comments", getCommentsByPostId);
 router.get("/comments/:commentId", getCommentById);
 
 // Create a comment on a post
-router.post("/posts/:postId/comments", createComment);
+router.post("/posts/:postId/comments", authenticateToken, createComment);
 
 // Update an existing comment
-router.patch("/comments/:commentId", updateComment);
+router.patch("/comments/:commentId", authenticateToken, updateComment);
 
 // Delete an existing comment
-router.delete("/comments/:commentId", deleteComment);
+router.delete("/comments/:commentId", authenticateToken, deleteComment);
 
 export default router;

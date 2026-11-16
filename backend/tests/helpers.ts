@@ -25,7 +25,11 @@ const testApp = express();
 testApp.use((req, _res, next) => {
     const id = req.header(TEST_USER_HEADER);
     if (id !== undefined) {
-        (req as express.Request & { user?: { id: number } }).user = { id: Number(id) };
+        req.user = {
+            id: Number(id),
+            username: "testuser",
+            email: "testuser@example.com"
+        };
     }
     next();
 });
