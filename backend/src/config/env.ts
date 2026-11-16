@@ -2,7 +2,12 @@
  * @file env.ts
  * @description Centralized environment variable loader and validator ensuring required server secrets and configurations are present.
  */
-import 'dotenv/config';
+import dotenv from 'dotenv';
+
+// Secrets like GROQ_API_KEY go in .env.local (git-ignored) so they never end up in the public repo.
+// Loaded first, so its values win over the shared .env.
+dotenv.config({ path: '.env.local' });
+dotenv.config();
 
 
 function required(name: string): string {

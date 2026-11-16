@@ -1,4 +1,9 @@
 # .gitignore
 # Description: Specifies intentionally untracked files to ignore (node_modules, build artifacts, environment secrets).
 node_modules/
-package-lock.json
+
+# Local secrets (e.g. GROQ_API_KEY) go in .env.local, which is never committed
+.env.local
+
+# Build output
+dist/
