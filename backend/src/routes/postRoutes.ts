@@ -4,6 +4,8 @@
  */
 
 import { Router } from "express";
+import { authenticateToken } from "../middleware/auth.js";
+
 import {
     createPost,
     getAllPosts,
@@ -21,12 +23,12 @@ router.get("/", getAllPosts);
 router.get("/:id", getPostById);
 
 // Create a new forum post
-router.post("/", createPost);
+router.post("/", authenticateToken, createPost);
 
 // Update an existing forum post
-router.patch("/:id", updatePost);
+router.patch("/:id", authenticateToken, updatePost);
 
 // Delete an existing forum post
-router.delete("/:id", deletePost);
+router.delete("/:id", authenticateToken, deletePost);
 
 export default router;
