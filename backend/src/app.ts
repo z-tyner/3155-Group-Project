@@ -1,6 +1,6 @@
 /**
  * @file app.ts
- * @description Express application setup, configuring global middleware (CORS, JSON parsing, error handling) and mounting API route endpoints.
+ * @description Express application setup, configuring global middleware (JSON parsing and error handling) and mounting API route endpoints.
  */
 
 import express from "express";

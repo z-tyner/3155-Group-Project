@@ -16,6 +16,31 @@ export async function getUserById(id: number) {
         .executeTakeFirst();
 }
 
+
+/**
+ * Updates an existing user's profile information.
+ *
+ * @param userId - ID of the user being updated.
+ * @param data - Profile fields to update.
+ * @returns The updated user, or null if not found.
+ */
+export async function updateUser(
+    userId: number,
+    data: {
+        username?: string;
+        email?: string;
+    }
+) {
+    const user = await db
+        .updateTable("users")
+        .set(data)
+        .where("id", "=", userId)
+        .returning(["id", "username", "email", "created_at"])
+        .executeTakeFirst();
+
+    return user ?? null;
+}
+
 /**
  * Deletes a user and their associated content.
  * All operations are performed within a transaction.

@@ -123,6 +123,96 @@ export async function getUserCharacters(
 }
 
 /**
+ * Updates the authenticated user's profile.
+ */
+export async function updateCurrentUser(
+    req: Request,
+    res: Response
+): Promise<void> {
+    try {
+        const userId = req.user?.id;
+
+        if (!userId) {
+            res.status(401).json({
+                message: "Authentication required."
+            });
+            return;
+        }
+
+        const { username, email } = req.body ?? {};
+
+        if (username === undefined && email === undefined) {
+            res.status(400).json({
+                message: "At least one field must be provided."
+            });
+            return;
+        }
+
+        if (
+            username !== undefined &&
+            (typeof username !== "string" || !username.trim())
+        ) {
+            res.status(400).json({
+                message: "Username must be a non-empty string."
+            });
+            return;
+        }
+
+        if (
+            email !== undefined &&
+            (
+                typeof email !== "string" ||
+                !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+            )
+        ) {
+            res.status(400).json({
+                message: "A valid email address is required."
+            });
+            return;
+        }
+
+        const updatedUser = await userService.updateUser(userId, {
+            ...(username !== undefined && {
+                username: username.trim()
+            }),
+            ...(email !== undefined && {
+                email: email.toLowerCase().trim()
+            })
+        });
+
+        if (!updatedUser) {
+            res.status(404).json({
+                message: "User not found."
+            });
+            return;
+        }
+
+        res.status(200).json({
+            user: updatedUser
+        });
+    } catch (error) {
+        // PostgreSQL unique email constraint
+        if (
+            typeof error === "object" &&
+            error !== null &&
+            "code" in error &&
+            error.code === "23505"
+        ) {
+            res.status(409).json({
+                message: "An account with that email already exists."
+            });
+            return;
+        }
+
+        console.error("Error updating user:", error);
+
+        res.status(500).json({
+            message: "Failed to update user."
+        });
+    }
+}
+
+/**
  * Deletes the authenticated user's account and associated content.
  */
 export async function deleteCurrentUser(
