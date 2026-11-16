@@ -14,11 +14,12 @@ import characterRoutes from "./routes/characterRoutes.js";
 import runRoutes from "./routes/runRoutes.js";
 import leaderboardRoutes from "./routes/leaderboardRoutes.js";
 
+import { errorHandler } from "./middleware/errorHandler.js";
+
 const app = express();
 
 // Global middleware
 app.use(express.json());
-
 // Register auth endpoints
 app.use("/api/auth", authRoutes);
 
@@ -31,5 +32,8 @@ app.use("/api/characters", characterRoutes);
 app.use("/api/cards", cardRoutes);
 app.use("/api/runs", runRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
+
+// Centralized error handling (must be registered after all routes)
+app.use(errorHandler);
 
 export default app;
