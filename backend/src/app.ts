@@ -13,6 +13,7 @@ import cardRoutes from "./routes/cardRoutes.js";
 import characterRoutes from "./routes/characterRoutes.js";
 import runRoutes from "./routes/runRoutes.js";
 import leaderboardRoutes from "./routes/leaderboardRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 import { errorHandler } from "./middleware/errorHandler.js";
 
@@ -32,6 +33,9 @@ app.use("/api/characters", characterRoutes);
 app.use("/api/cards", cardRoutes);
 app.use("/api/runs", runRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
+
+// Register user profile endpoints
+app.use("/api/users", userRoutes);
 
 // Centralized error handling (must be registered after all routes)
 app.use(errorHandler);
