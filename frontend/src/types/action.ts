@@ -47,17 +47,6 @@ export const DEFAULT_COMBAT_ACTIONS: CombatAction[] = [
         accuracy: 100,
         source: "innate"
     },
-    {
-        id: "action_piercing_thrust",
-        name: "Piercing Thrust",
-        description: "A precise thrust that bypasses enemy armor and defense mitigation.",
-        category: "offensive",
-        targetType: "single_enemy",
-        basePower: 0.85,
-        accuracy: 90,
-        armorPiercing: true,
-        source: "innate"
-    }
 ];
 
 /**
@@ -67,7 +56,7 @@ export const DEFAULT_COMBAT_ACTIONS: CombatAction[] = [
 export const LEVEL_REWARD_ACTIONS: CombatAction[] = [
     {
         id: "action_power_strike",
-        name: "Power Strike",
+        name: "Tail Slam",
         description: "A heavy, concentrated swing dealing 1.4x attack damage.",
         category: "offensive",
         targetType: "single_enemy",
@@ -76,6 +65,18 @@ export const LEVEL_REWARD_ACTIONS: CombatAction[] = [
         armorPiercing: false,
         source: "level_reward",
         unlockLevel: 1 // Awarded after completing Level 1
+    },
+    {
+        id: "action_piercing_thrust",
+        name: "Slash",
+        description: "A precise slash that bypasses enemy armor and defense mitigation.",
+        category: "offensive",
+        targetType: "single_enemy",
+        basePower: 0.85,
+        accuracy: 90,
+        armorPiercing: true,
+        source: "level_reward",
+        unlockLevel: 2
     },
     {
         id: "action_iron_barrier",
