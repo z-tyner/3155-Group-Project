@@ -1,4 +1,14 @@
-/*
- * index.css
- * Description: Global CSS stylesheet defining design tokens, color variables, typography, and base CSS reset rules.
- */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #000000;
+    color: #e2e8f0;
+    font-family: 'Courier New', Courier, monospace, 'Press Start 2P', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
