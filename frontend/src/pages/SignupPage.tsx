@@ -8,7 +8,7 @@ import { useAuth } from "../context/AuthContext.js";
 
 // Easily swappable visual assets
 const SIGNUP_ASSETS = {
-    background: "/assets/backgrounds/main_menu_bg.png",
+    background: "/assets/backgrounds/mainmenu_background.png",
     logo: "/assets/ui/rat_king_logo.png",
 };
 

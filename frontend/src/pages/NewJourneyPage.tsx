@@ -13,6 +13,7 @@ import * as characterApi from "../services/characterApi.js";
 import * as cardApi from "../services/cardApi.js";
 import type { Character } from "../types/character.js";
 import type { Card } from "../types/card.js";
+import type { EnemySpawnRate } from "../types/game.js";
 
 // Sound effects matching Main Menu
 const SFX = {
@@ -104,6 +105,20 @@ export const NewJourneyPage: React.FC = () => {
     const [loadingData, setLoadingData] = useState<boolean>(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+    // Multipliers & gameplay adjustments
+    const [xpMultiplier, setXpMultiplier] = useState<number>(1.0);
+    const [damageMultiplier, setDamageMultiplier] = useState<number>(1.0);
+    const [lootMultiplier, setLootMultiplier] = useState<number>(1.0);
+
+    // Starting individual stat bonuses
+    const [hpBonus, setHpBonus] = useState<number>(0);
+    const [attackBonus, setAttackBonus] = useState<number>(0);
+    const [defenseBonus, setDefenseBonus] = useState<number>(0);
+    const [critBonus, setCritBonus] = useState<number>(0);
+
+    // Enemy spawn density
+    const [enemySpawnRate, setEnemySpawnRate] = useState<EnemySpawnRate>("normal");
+
     // Load available characters and custom cards from API
     useEffect(() => {
         let isMounted = true;
@@ -175,12 +190,39 @@ export const NewJourneyPage: React.FC = () => {
             await startNewJourney(currentRat, {
                 cheatsEnabled,
                 includedCustomCardIds: selectedCardIds,
+                multipliers: {
+                    xpMultiplier,
+                    damageMultiplier,
+                    lootMultiplier,
+                },
+                statBonuses: {
+                    hpBonus,
+                    attackBonus,
+                    defenseBonus,
+                    critBonus,
+                },
+                enemySpawnRate,
             });
             navigate("/play");
         } catch (err: any) {
             setErrorMessage(err.message || "Failed to initialize journey.");
         }
-    }, [currentRat, isAuthenticated, navigate, startNewJourney, cheatsEnabled, selectedCardIds]);
+    }, [
+        currentRat,
+        isAuthenticated,
+        navigate,
+        startNewJourney,
+        cheatsEnabled,
+        selectedCardIds,
+        xpMultiplier,
+        damageMultiplier,
+        lootMultiplier,
+        hpBonus,
+        attackBonus,
+        defenseBonus,
+        critBonus,
+        enemySpawnRate,
+    ]);
 
     // Keyboard controls (A/D/Arrows/Enter/Esc/C)
     useEffect(() => {
@@ -230,7 +272,7 @@ export const NewJourneyPage: React.FC = () => {
             <div
                 className="fixed inset-0 pointer-events-none opacity-20 bg-cover bg-center"
                 style={{
-                    backgroundImage: `url("/assets/backgrounds/main_menu_bg.png")`,
+                    backgroundImage: `url("/assets/backgrounds/mainmenu_background.jpg")`,
                     backgroundColor: "#070c0a",
                 }}
             />
@@ -423,27 +465,30 @@ export const NewJourneyPage: React.FC = () => {
                     </button>
                 </div>
 
-                {/* Collapsible Journey Configuration (Custom Content & Cheats) */}
-                <div className="w-full max-w-xl mt-4">
+                {/* Collapsible Journey Configuration (Custom Content, Multipliers, Stats, Cheats) */}
+                <div className="w-full max-w-2xl mt-4">
                     <button
                         type="button"
                         onClick={() => setShowConfig((prev) => !prev)}
                         className="w-full py-2 px-4 bg-[#0d1613] border border-[#22352d] text-xs text-[#8ca872] hover:text-[#b9f046] hover:border-[#4d6b5e] flex items-center justify-between tracking-wider uppercase"
                     >
-                        <span>⚙ JOURNEY OPTIONS & CUSTOM CONTENT</span>
+                        <span>⚙ JOURNEY OPTIONS, MULTIPLIERS & CHEATS</span>
                         <span>{showConfig ? "▲ HIDE" : "▼ CONFIGURE"}</span>
                     </button>
 
                     {showConfig && (
-                        <div className="p-4 bg-[#0a110f] border-x border-b border-[#22352d] text-xs space-y-4">
+                        <div className="p-4 bg-[#0a110f] border-x border-b border-[#22352d] text-xs space-y-4 max-h-96 overflow-y-auto">
                             {/* Cheats Toggle */}
-                            <div className="flex items-center justify-between py-1 border-b border-[#182620]">
+                            <div className="flex items-center justify-between py-2 border-b border-[#182620]">
                                 <div>
-                                    <div className="font-bold text-white uppercase tracking-wider">
-                                        Cheats Enabled
+                                    <div className="font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                                        <span>Cheats & Dev Console</span>
+                                        <span className="text-[10px] px-1.5 py-0.2 bg-yellow-500/20 text-yellow-300 border border-yellow-500/40">
+                                            PRESS ` KEY IN-GAME
+                                        </span>
                                     </div>
                                     <div className="text-[10px] text-[#6d826c]">
-                                        Grants additional health pool and debug dice
+                                        Enables console commands to spawn enemies, give items, and modify stats.
                                     </div>
                                 </div>
                                 <button
@@ -459,9 +504,195 @@ export const NewJourneyPage: React.FC = () => {
                                 </button>
                             </div>
 
+                            {/* Multipliers */}
+                            <div className="py-2 border-b border-[#182620] space-y-2.5">
+                                <div className="font-bold text-white uppercase tracking-wider text-[11px]">
+                                    Gameplay Multipliers:
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    {/* XP Multiplier */}
+                                    <div className="bg-[#111917] p-2 border border-[#1e2e26]">
+                                        <div className="text-[10px] text-[#8ca872] uppercase mb-1">XP Gain</div>
+                                        <div className="flex gap-1">
+                                            {[0.5, 1.0, 1.5, 2.0, 3.0].map((val) => (
+                                                <button
+                                                    key={val}
+                                                    type="button"
+                                                    onClick={() => setXpMultiplier(val)}
+                                                    className={`px-1.5 py-0.5 text-[10px] font-bold border ${
+                                                        xpMultiplier === val
+                                                            ? "bg-[#b9f046] text-black border-[#b9f046]"
+                                                            : "bg-[#15221d] text-[#6e856d] border-[#253930]"
+                                                    }`}
+                                                >
+                                                    {val}x
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Damage Multiplier */}
+                                    <div className="bg-[#111917] p-2 border border-[#1e2e26]">
+                                        <div className="text-[10px] text-[#8ca872] uppercase mb-1">Player Damage</div>
+                                        <div className="flex gap-1">
+                                            {[0.5, 1.0, 1.5, 2.0].map((val) => (
+                                                <button
+                                                    key={val}
+                                                    type="button"
+                                                    onClick={() => setDamageMultiplier(val)}
+                                                    className={`px-1.5 py-0.5 text-[10px] font-bold border ${
+                                                        damageMultiplier === val
+                                                            ? "bg-[#b9f046] text-black border-[#b9f046]"
+                                                            : "bg-[#15221d] text-[#6e856d] border-[#253930]"
+                                                    }`}
+                                                >
+                                                    {val}x
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Loot Multiplier */}
+                                    <div className="bg-[#111917] p-2 border border-[#1e2e26]">
+                                        <div className="text-[10px] text-[#8ca872] uppercase mb-1">Loot Drops</div>
+                                        <div className="flex gap-1">
+                                            {[0.5, 1.0, 2.0, 3.0].map((val) => (
+                                                <button
+                                                    key={val}
+                                                    type="button"
+                                                    onClick={() => setLootMultiplier(val)}
+                                                    className={`px-1.5 py-0.5 text-[10px] font-bold border ${
+                                                        lootMultiplier === val
+                                                            ? "bg-[#b9f046] text-black border-[#b9f046]"
+                                                            : "bg-[#15221d] text-[#6e856d] border-[#253930]"
+                                                    }`}
+                                                >
+                                                    {val}x
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Individual Stat Tweaks */}
+                            <div className="py-2 border-b border-[#182620] space-y-2.5">
+                                <div className="font-bold text-white uppercase tracking-wider text-[11px]">
+                                    Starting Stat Bonuses:
+                                </div>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                    {/* HP Bonus */}
+                                    <div className="bg-[#111917] p-2 border border-[#1e2e26]">
+                                        <div className="text-[10px] text-red-400 uppercase mb-1">HP Bonus</div>
+                                        <div className="flex flex-wrap gap-1">
+                                            {[0, 25, 50, 100].map((val) => (
+                                                <button
+                                                    key={val}
+                                                    type="button"
+                                                    onClick={() => setHpBonus(val)}
+                                                    className={`px-1.5 py-0.5 text-[10px] font-bold border ${
+                                                        hpBonus === val
+                                                            ? "bg-red-500 text-white border-red-400"
+                                                            : "bg-[#15221d] text-[#6e856d] border-[#253930]"
+                                                    }`}
+                                                >
+                                                    +{val}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Attack Bonus */}
+                                    <div className="bg-[#111917] p-2 border border-[#1e2e26]">
+                                        <div className="text-[10px] text-[#b9f046] uppercase mb-1">ATK Bonus</div>
+                                        <div className="flex flex-wrap gap-1">
+                                            {[0, 5, 10, 20].map((val) => (
+                                                <button
+                                                    key={val}
+                                                    type="button"
+                                                    onClick={() => setAttackBonus(val)}
+                                                    className={`px-1.5 py-0.5 text-[10px] font-bold border ${
+                                                        attackBonus === val
+                                                            ? "bg-[#b9f046] text-black border-[#b9f046]"
+                                                            : "bg-[#15221d] text-[#6e856d] border-[#253930]"
+                                                    }`}
+                                                >
+                                                    +{val}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Defense Bonus */}
+                                    <div className="bg-[#111917] p-2 border border-[#1e2e26]">
+                                        <div className="text-[10px] text-blue-400 uppercase mb-1">DEF Bonus</div>
+                                        <div className="flex flex-wrap gap-1">
+                                            {[0, 5, 10, 20].map((val) => (
+                                                <button
+                                                    key={val}
+                                                    type="button"
+                                                    onClick={() => setDefenseBonus(val)}
+                                                    className={`px-1.5 py-0.5 text-[10px] font-bold border ${
+                                                        defenseBonus === val
+                                                            ? "bg-blue-500 text-white border-blue-400"
+                                                            : "bg-[#15221d] text-[#6e856d] border-[#253930]"
+                                                    }`}
+                                                >
+                                                    +{val}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Crit Bonus */}
+                                    <div className="bg-[#111917] p-2 border border-[#1e2e26]">
+                                        <div className="text-[10px] text-yellow-400 uppercase mb-1">Crit Bonus</div>
+                                        <div className="flex flex-wrap gap-1">
+                                            {[0, 10, 25, 50].map((val) => (
+                                                <button
+                                                    key={val}
+                                                    type="button"
+                                                    onClick={() => setCritBonus(val)}
+                                                    className={`px-1.5 py-0.5 text-[10px] font-bold border ${
+                                                        critBonus === val
+                                                            ? "bg-yellow-500 text-black border-yellow-400"
+                                                            : "bg-[#15221d] text-[#6e856d] border-[#253930]"
+                                                    }`}
+                                                >
+                                                    +{val}%
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Enemy Spawn Density */}
+                            <div className="py-2 border-b border-[#182620] space-y-2">
+                                <div className="font-bold text-white uppercase tracking-wider text-[11px]">
+                                    Enemy Spawn Density:
+                                </div>
+                                <div className="flex gap-2">
+                                    {(["low", "normal", "swarm", "horde"] as EnemySpawnRate[]).map((rate) => (
+                                        <button
+                                            key={rate}
+                                            type="button"
+                                            onClick={() => setEnemySpawnRate(rate)}
+                                            className={`flex-1 py-1 px-2 text-[10px] font-bold uppercase border transition-colors ${
+                                                enemySpawnRate === rate
+                                                    ? "bg-[#b9f046] text-black border-[#b9f046]"
+                                                    : "bg-[#14201c] text-[#789077] border-[#293d33] hover:text-white"
+                                            }`}
+                                        >
+                                            {rate}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
                             {/* Custom Content Checkboxes */}
-                            <div>
-                                <div className="font-bold text-white uppercase tracking-wider mb-2">
+                            <div className="py-1">
+                                <div className="font-bold text-white uppercase tracking-wider mb-2 text-[11px]">
                                     Include Custom Cards in Pool:
                                 </div>
                                 {customCards.length === 0 ? (

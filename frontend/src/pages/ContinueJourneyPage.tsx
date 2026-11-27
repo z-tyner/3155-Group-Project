@@ -202,7 +202,7 @@ export const ContinueJourneyPage: React.FC = () => {
             <div
                 className="fixed inset-0 pointer-events-none opacity-20 bg-cover bg-center"
                 style={{
-                    backgroundImage: `url("/assets/backgrounds/main_menu_bg.png")`,
+                    backgroundImage: `url("/assets/backgrounds/mainmenu_background.jpg")`,
                     backgroundColor: "#070c0a",
                 }}
             />

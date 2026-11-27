@@ -5,16 +5,15 @@
  */
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useAuth } from "../context/AuthContext.js";
 
 // ============================================================================
 // Easily Swappable Asset Paths
 // Change these paths whenever you want to update the background or title graphics.
 // ============================================================================
 export const MAIN_MENU_ASSETS = {
-    // Primary background PNG (extracted from the game mockup)
-    background: "/assets/backgrounds/main_menu_bg.png",
-    // Optional logo overlay (if not baked into the background)
-    logo: "/assets/ui/rat_king_logo.png",
+    // Primary background with baked-in Rat King logo
+    background: "/assets/backgrounds/mainmenu_background.jpg",
     // Audio track for the main menu
     menuTheme: "/assets/audio/music/menu/main_menu_theme.wav",
     // Menu click/nav sound effect
@@ -43,6 +42,8 @@ export const MainMenuPage: React.FC<MainMenuPageProps> = ({
     onNavigate,
     onLogout,
 }) => {
+    const { user } = useAuth();
+
     // Menu options adhering to context.txt & Game UI Mockup
     const menuItems: MenuItem[] = [
         {
@@ -208,11 +209,20 @@ export const MainMenuPage: React.FC<MainMenuPageProps> = ({
                 }}
             />
 
-            {/* Top Bar: Subtitle & Tagline */}
+            {/* Top Bar: Subtitle, Tagline, & Player Sign-in Status */}
             <header className="relative z-10 px-10 pt-8 flex justify-between items-start">
                 <div className="flex items-center gap-2 text-xs text-[#95a894] tracking-widest uppercase font-mono bg-black/40 px-3 py-1.5 border border-[#2b3a2a]">
                     <span className="inline-block w-2 h-2 bg-[#8ca872]" />
                     <span>Become the next Rat King... or die trying</span>
+                </div>
+
+                {/* Player Status Badge */}
+                <div className="flex items-center gap-2 text-xs tracking-widest uppercase font-mono bg-black/60 px-3 py-1.5 border border-[#2b3a2a]">
+                    <span className={`inline-block w-2 h-2 rounded-full ${user ? "bg-[#b9f046] animate-pulse" : "bg-[#556954]"}`} />
+                    <span className="text-[#6d826c]">PLAYER:</span>
+                    <span className={user ? "text-[#b9f046] font-bold" : "text-[#889987]"}>
+                        {user ? user.username : "Not Signed In"}
+                    </span>
                 </div>
             </header>
 
@@ -279,32 +289,8 @@ export const MainMenuPage: React.FC<MainMenuPageProps> = ({
                     </div>
                 </div>
 
-                {/* Right Column: Title Graphic / Logo */}
-                <div className="hidden md:flex md:col-span-7 lg:col-span-8 justify-end items-center pr-6">
-                    <div className="flex flex-col items-end">
-                        {/* If logo asset is present, display pixel art logo */}
-                        {MAIN_MENU_ASSETS.logo ? (
-                            <img
-                                src={MAIN_MENU_ASSETS.logo}
-                                alt="Rat King"
-                                className="w-80 lg:w-96 object-contain filter drop-shadow-[0_8px_16px_rgba(0,0,0,0.8)]"
-                                onError={(e) => {
-                                    // Fallback to text if PNG cannot be loaded
-                                    (e.target as HTMLElement).style.display = "none";
-                                }}
-                            />
-                        ) : (
-                            <div className="text-right">
-                                <div className="text-6xl font-black text-[#e8f5e9] tracking-widest drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
-                                    RAT
-                                </div>
-                                <div className="text-6xl font-black text-[#b9f046] tracking-widest drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">
-                                    KING
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                {/* Right Column: Kept clear for the baked-in Rat King logo in the background */}
+                <div className="hidden md:flex md:col-span-7 lg:col-span-8 pointer-events-none" />
             </main>
 
             {/* Bottom Footer: Keyboard Navigation Hints */}

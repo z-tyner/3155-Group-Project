@@ -28,11 +28,47 @@ export interface RunWithCards extends Run {
     cards: DraftedCard[];
 }
 
+export interface JourneyMultipliers {
+    xpMultiplier: number;
+    damageMultiplier: number;
+    lootMultiplier: number;
+}
+
+export interface JourneyStatBonuses {
+    hpBonus: number;
+    attackBonus: number;
+    defenseBonus: number;
+    critBonus: number;
+}
+
+export type EnemySpawnRate = "low" | "normal" | "swarm" | "horde";
+
 export interface JourneyConfig {
     selectedCharacterId: number | null;
     cheatsEnabled: boolean;
     includedCustomCardIds: number[];
+    multipliers: JourneyMultipliers;
+    statBonuses: JourneyStatBonuses;
+    enemySpawnRate: EnemySpawnRate;
 }
+
+export const DEFAULT_JOURNEY_CONFIG: JourneyConfig = {
+    selectedCharacterId: null,
+    cheatsEnabled: false,
+    includedCustomCardIds: [],
+    multipliers: {
+        xpMultiplier: 1.0,
+        damageMultiplier: 1.0,
+        lootMultiplier: 1.0,
+    },
+    statBonuses: {
+        hpBonus: 0,
+        attackBonus: 0,
+        defenseBonus: 0,
+        critBonus: 0,
+    },
+    enemySpawnRate: "normal",
+};
 
 export interface PlayerBattleState {
     characterId: number;

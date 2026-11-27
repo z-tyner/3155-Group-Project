@@ -5,6 +5,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import type { Run, RunWithCards, JourneyConfig } from "../types/game.js";
+import { DEFAULT_JOURNEY_CONFIG } from "../types/game.js";
 import type { Character } from "../types/character.js";
 import * as runApi from "../services/runApi.js";
 import * as characterApi from "../services/characterApi.js";
@@ -17,13 +18,14 @@ interface GameContextType {
     error: string | null;
     startNewJourney: (
         character: Character,
-        config: { cheatsEnabled: boolean; includedCustomCardIds: number[] }
+        config: Partial<JourneyConfig>
     ) => Promise<Run>;
     resumeJourney: (runId: number) => Promise<RunWithCards>;
     abandonJourney: (runId: number) => Promise<void>;
     updateProgress: (score: number, levelReached: number) => Promise<void>;
     completeActiveRun: (score: number, levelReached: number) => Promise<void>;
     clearActiveSession: () => void;
+    setJourneyConfig: React.Dispatch<React.SetStateAction<JourneyConfig>>;
 }
 
 const STORAGE_KEY_ACTIVE_RUN_ID = "rat_game_active_run_id";
@@ -37,13 +39,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [journeyConfig, setJourneyConfig] = useState<JourneyConfig>(() => {
         try {
             const saved = localStorage.getItem(STORAGE_KEY_JOURNEY_CONFIG);
-            if (saved) return JSON.parse(saved);
+            if (saved) return { ...DEFAULT_JOURNEY_CONFIG, ...JSON.parse(saved) };
         } catch {}
-        return {
-            selectedCharacterId: null,
-            cheatsEnabled: false,
-            includedCustomCardIds: [],
-        };
+        return DEFAULT_JOURNEY_CONFIG;
     });
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -89,7 +87,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Start a new journey run
     const startNewJourney = async (
         character: Character,
-        config: { cheatsEnabled: boolean; includedCustomCardIds: number[] }
+        config: Partial<JourneyConfig>
     ): Promise<Run> => {
         setIsLoading(true);
         setError(null);
@@ -99,8 +97,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setSelectedCharacter(character);
             updateJourneyConfig({
                 selectedCharacterId: character.id,
-                cheatsEnabled: config.cheatsEnabled,
-                includedCustomCardIds: config.includedCustomCardIds,
+                ...config,
             });
             localStorage.setItem(STORAGE_KEY_ACTIVE_RUN_ID, String(newRun.id));
             return newRun;
@@ -203,6 +200,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 updateProgress,
                 completeActiveRun,
                 clearActiveSession,
+                setJourneyConfig,
             }}
         >
             {children}
