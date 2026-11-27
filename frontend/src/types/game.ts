@@ -4,7 +4,35 @@
  */
 
 import { CombatAction } from "./action.js";
-import { Item, InventoryItem } from "./item.js";
+export type { Item, InventoryItem } from "./item.js";
+import { InventoryItem } from "./item.js";
+import { Card, DraftedCard } from "./card.js";
+import { Character } from "./character.js";
+
+export interface Run {
+    id: number;
+    user_id: number;
+    character_id: number | null;
+    score: number;
+    level_reached: number;
+    created_at: string;
+    completed_at: string | null;
+    character_title?: string | null;
+    character_sprite?: string | null;
+    character_hp?: number | null;
+    character_attack?: number | null;
+    character_defense?: number | null;
+}
+
+export interface RunWithCards extends Run {
+    cards: DraftedCard[];
+}
+
+export interface JourneyConfig {
+    selectedCharacterId: number | null;
+    cheatsEnabled: boolean;
+    includedCustomCardIds: number[];
+}
 
 export interface PlayerBattleState {
     characterId: number;

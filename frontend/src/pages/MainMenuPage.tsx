@@ -54,7 +54,6 @@ export const MainMenuPage: React.FC<MainMenuPageProps> = ({
             id: "continue",
             label: "CONTINUE",
             path: "/continue-journey",
-            disabled: !hasSavedJourney,
         },
         {
             id: "custom_content",

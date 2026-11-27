@@ -13,6 +13,11 @@ export interface Run {
     level_reached: number;
     created_at: Date;
     completed_at: Date | null; // null while the run is still in progress
+    character_title?: string | null;
+    character_sprite?: string | null;
+    character_hp?: number | null;
+    character_attack?: number | null;
+    character_defense?: number | null;
 }
 
 // A card drafted during a run (row from run_cards joined with cards)

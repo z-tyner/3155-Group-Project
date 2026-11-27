@@ -45,24 +45,52 @@ export async function createRun(userId: number, characterId: number | null) {
     return run;
 }
 
-// Retrieve all runs for a user, newest first
+// Retrieve all runs for a user, newest first (with character details)
 export async function getRunsByUser(userId: number) {
     const runs = await db
         .selectFrom("runs")
-        .selectAll()
-        .where("user_id", "=", userId)
-        .orderBy("created_at", "desc")
+        .leftJoin("characters", "characters.id", "runs.character_id")
+        .select([
+            "runs.id",
+            "runs.user_id",
+            "runs.character_id",
+            "runs.score",
+            "runs.level_reached",
+            "runs.created_at",
+            "runs.completed_at",
+            "characters.title as character_title",
+            "characters.sprite_url as character_sprite",
+            "characters.hp as character_hp",
+            "characters.attack as character_attack",
+            "characters.defense as character_defense",
+        ])
+        .where("runs.user_id", "=", userId)
+        .orderBy("runs.created_at", "desc")
         .execute();
 
     return runs;
 }
 
-// Retrieve a single run by ID (without cards)
+// Retrieve a single run by ID (without cards, with character details)
 export async function getRunById(runId: number) {
     const run = await db
         .selectFrom("runs")
-        .selectAll()
-        .where("id", "=", runId)
+        .leftJoin("characters", "characters.id", "runs.character_id")
+        .select([
+            "runs.id",
+            "runs.user_id",
+            "runs.character_id",
+            "runs.score",
+            "runs.level_reached",
+            "runs.created_at",
+            "runs.completed_at",
+            "characters.title as character_title",
+            "characters.sprite_url as character_sprite",
+            "characters.hp as character_hp",
+            "characters.attack as character_attack",
+            "characters.defense as character_defense",
+        ])
+        .where("runs.id", "=", runId)
         .executeTakeFirst();
 
     return run ?? null;
