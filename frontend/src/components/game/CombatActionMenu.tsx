@@ -6,6 +6,7 @@
 import React, { useState } from "react";
 import { CombatAction } from "../../types/action.js";
 import { EnemyBattleState, InventoryItem } from "../../types/game.js";
+import { useAudio } from "../../context/AudioContext.js";
 
 interface CombatActionMenuProps {
     isPlayerTurn: boolean;
@@ -24,6 +25,7 @@ export const CombatActionMenu: React.FC<CombatActionMenuProps> = ({
     onSelectAction,
     onUseItem,
 }) => {
+    const { playSfx } = useAudio();
     const [mode, setMode] = useState<"combat" | "item">("combat");
     const [selectedAction, setSelectedAction] = useState<CombatAction | null>(null);
 
@@ -33,23 +35,27 @@ export const CombatActionMenu: React.FC<CombatActionMenuProps> = ({
         if (!isPlayerTurn) return;
 
         if (action.category === "defensive" || action.targetType === "self") {
+            playSfx("/assets/audio/sfx/menu_confirm.wav");
             onSelectAction(action);
             setSelectedAction(null);
             return;
         }
 
         if (livingEnemies.length === 1) {
+            playSfx("/assets/audio/sfx/menu_confirm.wav");
             onSelectAction(action, livingEnemies[0].id);
             setSelectedAction(null);
             return;
         }
 
         // Offensive action with multiple foes: prompt for enemy target selection
+        playSfx("/assets/audio/sfx/menu_select.wav");
         setSelectedAction(action);
     };
 
     const handleEnemyTargetClick = (enemyId: string) => {
         if (!isPlayerTurn || !selectedAction) return;
+        playSfx("/assets/audio/sfx/menu_confirm.wav");
         onSelectAction(selectedAction, enemyId);
         setSelectedAction(null);
     };
@@ -63,6 +69,7 @@ export const CombatActionMenu: React.FC<CombatActionMenuProps> = ({
                         type="button"
                         disabled={!isPlayerTurn}
                         onClick={() => {
+                            playSfx("/assets/audio/sfx/menu_select.wav");
                             setMode("combat");
                             setSelectedAction(null);
                         }}
@@ -78,6 +85,7 @@ export const CombatActionMenu: React.FC<CombatActionMenuProps> = ({
                         type="button"
                         disabled={!isPlayerTurn}
                         onClick={() => {
+                            playSfx("/assets/audio/sfx/menu_select.wav");
                             setMode("item");
                             setSelectedAction(null);
                         }}
@@ -148,7 +156,10 @@ export const CombatActionMenu: React.FC<CombatActionMenuProps> = ({
                         </span>
                         <button
                             type="button"
-                            onClick={() => setSelectedAction(null)}
+                            onClick={() => {
+                                playSfx("/assets/audio/sfx/ui_back.wav");
+                                setSelectedAction(null);
+                            }}
                             className="text-[11px] text-[#8ca872] underline hover:text-white uppercase"
                         >
                             [ Cancel ]

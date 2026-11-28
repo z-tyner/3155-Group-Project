@@ -8,6 +8,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useGame } from "../context/GameContext.js";
+import { useAudio } from "../context/AudioContext.js";
 import { DevConsole } from "../components/game/DevConsole.js";
 import { CombatActionMenu } from "../components/game/CombatActionMenu.js";
 import {
@@ -16,9 +17,17 @@ import {
 } from "../game/systems/BattleSystem.js";
 import {
     WAVES_PER_LEVEL,
+    BOSS_ENTRANCE_SFX,
+    MONSTER_ENTRANCE_SFX,
     spawnWaveEnemies,
     isBossEncounter,
     handleLevelCompletion,
+    getLocationName,
+    getLevelMusicPath,
+    getBossMusicPath,
+    getEnemyAttackSfx,
+    getEnemyHurtSfx,
+    isMonsterEnemy,
 } from "../game/systems/StageManager.js";
 import {
     calculateLevelProgress,
@@ -55,6 +64,7 @@ export const PlayGamePage: React.FC = () => {
         updateProgress,
         completeActiveRun,
     } = useGame();
+    const { playMusic, stopMusic, playSfx } = useAudio();
 
     const initialDepth = Math.max(1, activeRun?.level_reached || 1);
     const initialXp = activeRun?.score ?? 0;
@@ -144,6 +154,28 @@ export const PlayGamePage: React.FC = () => {
         logEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [battleLogs]);
 
+    // Play level or boss background music for the active encounter
+    const hasBossActive = enemies.some((e) => e.isBoss && e.currentHp > 0);
+    useEffect(() => {
+        const bossTrack = hasBossActive ? getBossMusicPath(currentDepth) : null;
+        playMusic(bossTrack || getLevelMusicPath(currentDepth));
+    }, [currentDepth, hasBossActive, playMusic]);
+
+    // Stop music when leaving combat screen
+    useEffect(() => {
+        return () => stopMusic();
+    }, [stopMusic]);
+
+    // Play entrance SFX for initial wave if boss or monster is present
+    useEffect(() => {
+        if (enemies.some((e) => e.isBoss)) {
+            playSfx(BOSS_ENTRANCE_SFX);
+        } else if (enemies.some((e) => isMonsterEnemy(e))) {
+            playSfx(MONSTER_ENTRANCE_SFX);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     // Toggle dev console with backtick (`) only when cheats are enabled
     useEffect(() => {
         if (!journeyConfig.cheatsEnabled) {
@@ -203,6 +235,7 @@ export const PlayGamePage: React.FC = () => {
                 }
                 setCurrentLevel(nextLevel);
                 setPendingStatPoints((prev) => prev + gainedPoints);
+                playSfx("/assets/audio/sfx/level_up.wav");
                 appendLog(
                     `LEVEL UP! Reached Level ${nextLevel} (+${gainedPoints} stat point${gainedPoints > 1 ? "s" : ""})!`,
                     "reward"
@@ -211,7 +244,7 @@ export const PlayGamePage: React.FC = () => {
 
             return nextXp;
         },
-        [appendLog, currentLevel, totalXp]
+        [appendLog, currentLevel, playSfx, totalXp]
     );
 
     const handleAllocateStat = (stat: AllocatableStat) => {
@@ -245,12 +278,15 @@ export const PlayGamePage: React.FC = () => {
 
                 for (const enemy of living) {
                     if (nextPlayer.currentHp <= 0) break;
+                    playSfx(getEnemyAttackSfx(enemy));
                     const result = executeEnemyAction(enemy, nextPlayer);
                     appendLog(result.logMessage, "enemy");
 
                     if (!result.hit) {
+                        playSfx("/assets/audio/sfx/combat/miss.wav");
                         spawnFloatingText("player", "MISS!", "miss");
                     } else {
+                        playSfx("/assets/audio/sfx/combat/player_hurt.wav");
                         spawnFloatingText(
                             "player",
                             result.crit ? `CRIT! -${result.damageDealt}` : `-${result.damageDealt}`,
@@ -270,7 +306,7 @@ export const PlayGamePage: React.FC = () => {
                 }
             }, 850);
         },
-        [appendLog, spawnFloatingText]
+        [appendLog, playSfx, spawnFloatingText]
     );
 
     // Advance wave or complete level when all enemies are defeated
@@ -295,11 +331,16 @@ export const PlayGamePage: React.FC = () => {
                     );
                     setCurrentWave(nextWave);
                     setEnemies(nextEnemies);
+                    if (nextEnemies.some((e) => e.isBoss)) {
+                        playSfx(BOSS_ENTRANCE_SFX);
+                    } else if (nextEnemies.some((e) => isMonsterEnemy(e))) {
+                        playSfx(MONSTER_ENTRANCE_SFX);
+                    }
                     setWaveBanner(null);
                     setIsTransitioningWave(false);
                     setIsPlayerTurn(true);
                     appendLog(
-                        `Depth ${currentDepth} — Wave ${nextWave}/${WAVES_PER_LEVEL} engaged!`,
+                        `${getLocationName(currentDepth)} — Wave ${nextWave}/${WAVES_PER_LEVEL} engaged!`,
                         "system"
                     );
                 }, 1100);
@@ -307,6 +348,7 @@ export const PlayGamePage: React.FC = () => {
             }
 
             // Final wave of the level cleared -> level completion & save progress
+            playSfx("/assets/audio/sfx/stage_clear.wav");
             const wasBoss = isBossEncounter(currentDepth, currentWave);
             const playerCopy: PlayerBattleState = {
                 ...currentPlayerState,
@@ -341,10 +383,15 @@ export const PlayGamePage: React.FC = () => {
                 setCurrentDepth(nextDepth);
                 setCurrentWave(1);
                 setEnemies(nextEnemies);
+                if (nextEnemies.some((e) => e.isBoss)) {
+                    playSfx(BOSS_ENTRANCE_SFX);
+                } else if (nextEnemies.some((e) => isMonsterEnemy(e))) {
+                    playSfx(MONSTER_ENTRANCE_SFX);
+                }
                 setWaveBanner(null);
                 setIsTransitioningWave(false);
                 setIsPlayerTurn(true);
-                appendLog(`Entered Depth ${nextDepth} — Wave 1/${WAVES_PER_LEVEL}.`, "system");
+                appendLog(`Entered ${getLocationName(nextDepth)} (Depth ${nextDepth}) — Wave 1/${WAVES_PER_LEVEL}.`, "system");
             }, 1400);
         },
         [
@@ -353,6 +400,7 @@ export const PlayGamePage: React.FC = () => {
             currentDepth,
             currentWave,
             journeyConfig.enemySpawnRate,
+            playSfx,
             showNotification,
             updateProgress,
         ]
@@ -368,6 +416,7 @@ export const PlayGamePage: React.FC = () => {
         if (action.category === "defensive" || action.targetType === "self") {
             const result = executePlayerAction(action, playerCopy);
             setPlayer(playerCopy);
+            playSfx("/assets/audio/sfx/combat/player_shield.wav");
             appendLog(result.logMessage, "player");
             spawnFloatingText("player", `+${result.shieldApplied} SHIELD`, "shield");
             runEnemyTurn(enemiesCopy, playerCopy);
@@ -382,8 +431,15 @@ export const PlayGamePage: React.FC = () => {
         appendLog(result.logMessage, "player");
 
         if (!result.hit) {
+            playSfx("/assets/audio/sfx/combat/miss.wav");
             spawnFloatingText(targetEnemy.id, "MISS!", "miss");
         } else {
+            playSfx(
+                result.crit
+                    ? "/assets/audio/sfx/combat/player_crit.wav"
+                    : "/assets/audio/sfx/combat/player_attack.wav"
+            );
+            playSfx(getEnemyHurtSfx(targetEnemy));
             spawnFloatingText(
                 targetEnemy.id,
                 result.crit ? `CRIT! -${result.damageDealt}` : `-${result.damageDealt}`,
@@ -418,6 +474,7 @@ export const PlayGamePage: React.FC = () => {
         if (!isPlayerTurn || isTransitioningWave || player.currentHp <= 0) return;
         if (itemEntry.quantity <= 0) return;
 
+        playSfx("/assets/audio/sfx/combat/item_use.wav");
         const playerCopy: PlayerBattleState = { ...player };
         let enemiesCopy: EnemyBattleState[] = enemies.map((e) => ({ ...e }));
         let updatedXp = totalXp;
@@ -674,7 +731,9 @@ export const PlayGamePage: React.FC = () => {
                             {/* Level / Wave Progress Bar */}
                             <div>
                                 <div className="flex justify-between text-[10px] mb-1">
-                                    <span className="text-cyan-300 font-bold">DEPTH {currentDepth}</span>
+                                    <span className="text-cyan-300 font-bold truncate max-w-[140px]">
+                                        {getLocationName(currentDepth)}
+                                    </span>
                                     <span className="text-[#9cb19e]">
                                         WAVE {currentWave} / {WAVES_PER_LEVEL}
                                     </span>

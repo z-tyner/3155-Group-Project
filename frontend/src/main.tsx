@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App.js";
 import { AuthProvider } from "./context/AuthContext.js";
 import { GameProvider } from "./context/GameContext.js";
+import { AudioProvider } from "./context/AudioContext.js";
 import "./index.css";
 
 const rootElement = document.getElementById("root");
@@ -14,11 +15,13 @@ if (!rootElement) {
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <GameProvider>
-          <App />
-        </GameProvider>
-      </AuthProvider>
+      <AudioProvider>
+        <AuthProvider>
+          <GameProvider>
+            <App />
+          </GameProvider>
+        </AuthProvider>
+      </AudioProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

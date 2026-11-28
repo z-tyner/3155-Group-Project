@@ -89,3 +89,28 @@ The AI call should ensure the code is non-malicous and abides by content moderat
             - Where a user can post, read, and comment on articles. There is a pinned 'Guide' forum post that contains basic information about the game.
     - Log Out
         - Signs the user out and sends them back to the login screen
+
+
+Enemy types
+Sewer Rat (Conventional) 
+Gutter Runner (Conventional) 
+Skitterers (Conventional) 
+Monstrosity (Monster) 
+Ironside (Conventional) 
+Apothecary (Conventional) 
+Vermin Gator (Monster) 
+Verminking (Final Boss) 
+Grand Mutator (Boss) 
+Blight Tank (Boss) 
+Mold Lord (Boss) 
+Ractopus (Boss) 
+
+Locations with their associated bosses (formated: 'Level - Boss')
+Sewer Entrance - No boss
+Toxic Lake - Ractopus
+Spawning Grounds - Mold Lord
+Rattown - No boss
+Castle Entrance - Blight tank
+Grand laboratory - Grand mutator
+Castle halls - No boss
+Throne room - Verminking

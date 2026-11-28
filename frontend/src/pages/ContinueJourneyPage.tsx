@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.js";
 import { useGame } from "../context/GameContext.js";
 import * as runApi from "../services/runApi.js";
+import { getLocationName } from "../game/systems/StageManager.js";
 import type { Run } from "../types/game.js";
 
 // Sound effects matching Main Menu
@@ -25,15 +26,6 @@ const playSound = (src: string) => {
         audio.play().catch(() => {});
     } catch {}
 };
-
-function getLocationName(level: number): string {
-    if (level <= 0) return "Gutter Outskirts";
-    if (level <= 1) return "Sewer Drainpipes";
-    if (level <= 2) return "Sewer Poisonings";
-    if (level <= 4) return "Grand Laboratory";
-    if (level <= 6) return "Toxic Reservoirs";
-    return "Rat King's Lair";
-}
 
 function formatDate(dateStr: string): string {
     try {

@@ -8,6 +8,74 @@ import type { EnemyBattleState, EnemySpawnRate, PlayerBattleState } from "../../
 
 export const WAVES_PER_LEVEL = 3;
 
+export const BOSS_ENTRANCE_SFX = "/assets/audio/sfx/boss_entrance.wav";
+export const MONSTER_ENTRANCE_SFX = "/assets/audio/sfx/monster_entrance.wav";
+
+export type BossKey =
+    | "ractopus"
+    | "mold_lord"
+    | "blight_tank"
+    | "grand_mutator"
+    | "verminking";
+
+export interface LevelDefinition {
+    level: number;
+    location: string;
+    musicPath: string;
+    bossKey: BossKey | null;
+}
+
+export const LEVEL_DEFINITIONS: LevelDefinition[] = [
+    {
+        level: 1,
+        location: "Sewer Entrance",
+        musicPath: "/assets/audio/music/levels/level_1_sewer_entrance.wav",
+        bossKey: null,
+    },
+    {
+        level: 2,
+        location: "Toxic Lake",
+        musicPath: "/assets/audio/music/levels/level_2_toxic_lake.wav",
+        bossKey: "ractopus",
+    },
+    {
+        level: 3,
+        location: "Spawning Grounds",
+        musicPath: "/assets/audio/music/levels/level_3_spawning_grounds.wav",
+        bossKey: "mold_lord",
+    },
+    {
+        level: 4,
+        location: "Rattown",
+        musicPath: "/assets/audio/music/levels/level_4_rattown.wav",
+        bossKey: null,
+    },
+    {
+        level: 5,
+        location: "Castle Entrance",
+        musicPath: "/assets/audio/music/levels/level_5_castle_entrance.wav",
+        bossKey: "blight_tank",
+    },
+    {
+        level: 6,
+        location: "Grand Laboratory",
+        musicPath: "/assets/audio/music/levels/level_6_grand_laboratory.wav",
+        bossKey: "grand_mutator",
+    },
+    {
+        level: 7,
+        location: "Castle Halls",
+        musicPath: "/assets/audio/music/levels/level_7_castle_halls.wav",
+        bossKey: null,
+    },
+    {
+        level: 8,
+        location: "Throne Room",
+        musicPath: "/assets/audio/music/levels/level_8_throne_room.wav",
+        bossKey: "verminking",
+    },
+];
+
 export interface LevelCompletionResult {
     completedLevel: number;
     unlockedActions: CombatAction[];
@@ -18,6 +86,7 @@ export interface LevelCompletionResult {
 
 interface EnemyPoolEntry {
     key: string;
+    category: "conventional" | "monster";
     weight: number;
     minLevel: number;
     template: Omit<EnemyBattleState, "id">;
@@ -26,7 +95,8 @@ interface EnemyPoolEntry {
 const ENEMY_POOL: EnemyPoolEntry[] = [
     {
         key: "sewer_rat",
-        weight: 50,
+        category: "conventional",
+        weight: 45,
         minLevel: 1,
         template: {
             name: "Sewer Rat",
@@ -44,75 +114,252 @@ const ENEMY_POOL: EnemyPoolEntry[] = [
         },
     },
     {
-        key: "plague_bat",
-        weight: 30,
+        key: "gutter_runner",
+        category: "conventional",
+        weight: 35,
         minLevel: 1,
         template: {
-            name: "Plague Bat",
+            name: "Gutter Runner",
             currentHp: 35,
             maxHp: 35,
-            attack: 12,
+            attack: 13,
             defense: 2,
             crit_chance: 20,
             armor_piercing: false,
             accuracy: 95,
-            itemDropChance: 20,
+            itemDropChance: 25,
             xpDropAmount: 35,
             isBoss: false,
-            spriteUrl: "/assets/enemies/idle/bat.png",
+            spriteUrl: "/assets/enemies/idle/gutter_runner.png",
         },
     },
     {
-        key: "toxic_slime",
-        weight: 25,
-        minLevel: 2,
+        key: "skitterers",
+        category: "conventional",
+        weight: 30,
+        minLevel: 1,
         template: {
-            name: "Toxic Slime",
-            currentHp: 65,
-            maxHp: 65,
+            name: "Skitterers",
+            currentHp: 30,
+            maxHp: 30,
+            attack: 11,
+            defense: 2,
+            crit_chance: 15,
+            armor_piercing: false,
+            accuracy: 92,
+            itemDropChance: 20,
+            xpDropAmount: 30,
+            isBoss: false,
+            spriteUrl: "/assets/enemies/idle/skitterers.png",
+        },
+    },
+    {
+        key: "ironside",
+        category: "conventional",
+        weight: 22,
+        minLevel: 3,
+        template: {
+            name: "Ironside",
+            currentHp: 75,
+            maxHp: 75,
             attack: 14,
-            defense: 8,
+            defense: 14,
             crit_chance: 5,
-            armor_piercing: true,
+            armor_piercing: false,
             accuracy: 85,
             itemDropChance: 35,
-            xpDropAmount: 50,
+            xpDropAmount: 55,
             isBoss: false,
-            spriteUrl: "/assets/enemies/idle/slime.png",
+            spriteUrl: "/assets/enemies/idle/ironside.png",
+        },
+    },
+    {
+        key: "apothecary",
+        category: "conventional",
+        weight: 20,
+        minLevel: 4,
+        template: {
+            name: "Apothecary",
+            currentHp: 55,
+            maxHp: 55,
+            attack: 16,
+            defense: 6,
+            crit_chance: 10,
+            armor_piercing: true,
+            accuracy: 90,
+            itemDropChance: 45,
+            xpDropAmount: 60,
+            isBoss: false,
+            spriteUrl: "/assets/enemies/idle/apothecary.png",
+        },
+    },
+    {
+        key: "monstrosity",
+        category: "monster",
+        weight: 18,
+        minLevel: 2,
+        template: {
+            name: "Monstrosity",
+            currentHp: 95,
+            maxHp: 95,
+            attack: 18,
+            defense: 10,
+            crit_chance: 10,
+            armor_piercing: false,
+            accuracy: 82,
+            itemDropChance: 40,
+            xpDropAmount: 80,
+            isBoss: false,
+            spriteUrl: "/assets/enemies/idle/monstrosity.png",
+        },
+    },
+    {
+        key: "vermin_gator",
+        category: "monster",
+        weight: 16,
+        minLevel: 4,
+        template: {
+            name: "Vermin Gator",
+            currentHp: 110,
+            maxHp: 110,
+            attack: 20,
+            defense: 12,
+            crit_chance: 12,
+            armor_piercing: true,
+            accuracy: 85,
+            itemDropChance: 45,
+            xpDropAmount: 95,
+            isBoss: false,
+            spriteUrl: "/assets/enemies/idle/vermin_gator.png",
         },
     },
 ];
 
-const BOSS_TEMPLATES: Record<"rat_ogre" | "rat_king", Omit<EnemyBattleState, "id">> = {
-    rat_ogre: {
-        name: "Rat Ogre",
-        currentHp: 180,
-        maxHp: 180,
-        attack: 22,
-        defense: 12,
-        crit_chance: 10,
-        armor_piercing: false,
-        accuracy: 85,
-        itemDropChance: 40,
-        xpDropAmount: 150,
-        isBoss: true,
-        spriteUrl: "/assets/enemies/idle/rat_ogre.png",
+const BOSS_TEMPLATES: Record<BossKey, { template: Omit<EnemyBattleState, "id">; musicPath: string }> = {
+    ractopus: {
+        musicPath: "/assets/audio/music/bosses/ractopus_theme.wav",
+        template: {
+            name: "Ractopus",
+            currentHp: 160,
+            maxHp: 160,
+            attack: 18,
+            defense: 10,
+            crit_chance: 10,
+            armor_piercing: false,
+            accuracy: 85,
+            itemDropChance: 60,
+            xpDropAmount: 180,
+            isBoss: true,
+            spriteUrl: "/assets/enemies/idle/ractopus.png",
+        },
     },
-    rat_king: {
-        name: "Rat King",
-        currentHp: 300,
-        maxHp: 300,
-        attack: 28,
-        defense: 18,
-        crit_chance: 20,
-        armor_piercing: true,
-        accuracy: 90,
-        itemDropChance: 100,
-        xpDropAmount: 500,
-        isBoss: true,
-        spriteUrl: "/assets/enemies/idle/rat_king.png",
+    mold_lord: {
+        musicPath: "/assets/audio/music/bosses/mold_lord_theme.wav",
+        template: {
+            name: "Mold Lord",
+            currentHp: 200,
+            maxHp: 200,
+            attack: 20,
+            defense: 12,
+            crit_chance: 10,
+            armor_piercing: true,
+            accuracy: 85,
+            itemDropChance: 65,
+            xpDropAmount: 240,
+            isBoss: true,
+            spriteUrl: "/assets/enemies/idle/mold_lord.png",
+        },
+    },
+    blight_tank: {
+        musicPath: "/assets/audio/music/bosses/blight_tank_theme.wav",
+        template: {
+            name: "Blight Tank",
+            currentHp: 260,
+            maxHp: 260,
+            attack: 24,
+            defense: 18,
+            crit_chance: 10,
+            armor_piercing: false,
+            accuracy: 85,
+            itemDropChance: 75,
+            xpDropAmount: 320,
+            isBoss: true,
+            spriteUrl: "/assets/enemies/idle/blight_tank.png",
+        },
+    },
+    grand_mutator: {
+        musicPath: "/assets/audio/music/bosses/grand_mutator_theme.wav",
+        template: {
+            name: "Grand Mutator",
+            currentHp: 280,
+            maxHp: 280,
+            attack: 26,
+            defense: 14,
+            crit_chance: 15,
+            armor_piercing: true,
+            accuracy: 90,
+            itemDropChance: 85,
+            xpDropAmount: 400,
+            isBoss: true,
+            spriteUrl: "/assets/enemies/idle/grand_mutator.png",
+        },
+    },
+    verminking: {
+        musicPath: "/assets/audio/music/bosses/verminking_theme.wav",
+        template: {
+            name: "Verminking",
+            currentHp: 360,
+            maxHp: 360,
+            attack: 30,
+            defense: 20,
+            crit_chance: 20,
+            armor_piercing: true,
+            accuracy: 92,
+            itemDropChance: 100,
+            xpDropAmount: 600,
+            isBoss: true,
+            spriteUrl: "/assets/enemies/idle/verminking.png",
+        },
     },
 };
+
+export function getLevelDefinition(level: number): LevelDefinition {
+    const safeIndex = Math.max(0, Math.min(LEVEL_DEFINITIONS.length - 1, level - 1));
+    return LEVEL_DEFINITIONS[safeIndex];
+}
+
+export function getLocationName(level: number): string {
+    if (level <= 0) return LEVEL_DEFINITIONS[0].location;
+    return getLevelDefinition(level).location;
+}
+
+export function getLevelMusicPath(level: number): string {
+    return getLevelDefinition(level).musicPath;
+}
+
+export function getBossMusicPath(level: number): string | null {
+    const bossKey = getLevelDefinition(level).bossKey;
+    return bossKey ? BOSS_TEMPLATES[bossKey].musicPath : null;
+}
+
+export function getEnemyKeyFromName(name: string): string {
+    return name.replace(/\s+#\d+$/, "").trim().toLowerCase().replace(/\s+/g, "_");
+}
+
+export function getEnemyAttackSfx(enemy: Pick<EnemyBattleState, "name">): string {
+    return `/assets/audio/sfx/enemies/${getEnemyKeyFromName(enemy.name)}_attack.wav`;
+}
+
+export function getEnemyHurtSfx(enemy: Pick<EnemyBattleState, "name">): string {
+    return `/assets/audio/sfx/enemies/${getEnemyKeyFromName(enemy.name)}_hurt.wav`;
+}
+
+export function isMonsterEnemy(enemy: Pick<EnemyBattleState, "name" | "isBoss">): boolean {
+    if (enemy.isBoss) return false;
+    const key = getEnemyKeyFromName(enemy.name);
+    const entry = ENEMY_POOL.find((e) => e.key === key);
+    return entry?.category === "monster";
+}
 
 function getBaseSpawnCount(spawnRate: EnemySpawnRate): number {
     switch (spawnRate) {
@@ -147,7 +394,7 @@ function scaleEnemyTemplate(
     id: string,
     nameOverride?: string
 ): EnemyBattleState {
-    const depthScale = 1 + Math.max(0, level - 1) * 0.15;
+    const depthScale = 1 + Math.max(0, level - 1) * 0.12;
     const scaledHp = Math.round(template.maxHp * depthScale);
 
     return {
@@ -157,15 +404,15 @@ function scaleEnemyTemplate(
         maxHp: scaledHp,
         currentHp: scaledHp,
         attack: Math.round(template.attack * depthScale),
-        defense: Math.round(template.defense * (1 + Math.max(0, level - 1) * 0.1)),
+        defense: Math.round(template.defense * (1 + Math.max(0, level - 1) * 0.08)),
     };
 }
 
 /**
- * Returns true if the given dungeon depth is a boss level (every 3rd level).
+ * Returns true if the given dungeon depth has a boss encounter.
  */
 export function isLevelBossDepth(level: number): boolean {
-    return level > 0 && level % 3 === 0;
+    return getLevelDefinition(level).bossKey !== null;
 }
 
 /**
@@ -186,11 +433,11 @@ export function spawnWaveEnemies(
     const safeLevel = Math.max(1, level);
     const safeWave = Math.max(1, wave);
     const timestamp = Date.now();
+    const def = getLevelDefinition(safeLevel);
 
-    if (isBossEncounter(safeLevel, safeWave)) {
-        const bossKey = safeLevel >= 6 ? "rat_king" : "rat_ogre";
+    if (def.bossKey && safeWave >= WAVES_PER_LEVEL) {
         const boss = scaleEnemyTemplate(
-            BOSS_TEMPLATES[bossKey],
+            BOSS_TEMPLATES[def.bossKey].template,
             safeLevel,
             `boss-${safeLevel}-${safeWave}-${timestamp}`
         );
@@ -212,7 +459,6 @@ export function spawnWaveEnemies(
     }
 
     const baseCount = getBaseSpawnCount(spawnRate);
-    // Slightly ramp count on later waves while capping at 6 so the 4-row zigzag stays clean
     const waveBonus = safeWave >= WAVES_PER_LEVEL && baseCount < 4 ? 1 : 0;
     const count = Math.min(6, baseCount + waveBonus);
 
@@ -245,7 +491,6 @@ export function handleLevelCompletion(
     player: PlayerBattleState,
     isBoss: boolean = false
 ): LevelCompletionResult {
-    // 1. Check for any attacks/actions configured to unlock at this level completion
     const unlockedActions = getActionsUnlockedAtLevel(completedLevel);
 
     for (const action of unlockedActions) {
@@ -255,7 +500,6 @@ export function handleLevelCompletion(
         }
     }
 
-    // 2. Determine card drafting options (context.txt: 3 cards standard, +3 bonus when boss defeated)
     const draftOptionCount = isBoss ? 6 : 3;
 
     return {
