@@ -4,6 +4,7 @@
  */
 
 import { Router } from "express";
+import { authenticateToken } from "../middleware/auth.js";
 import {
     createRun,
     getMyRuns,
@@ -17,24 +18,24 @@ import {
 const router = Router();
 
 // Retrieve the logged-in user's runs (before "/:id" so "me" isn't read as an ID)
-router.get("/me", getMyRuns);
+router.get("/me", authenticateToken, getMyRuns);
 
 // Retrieve a single run with its drafted cards
 router.get("/:id", getRunById);
 
 // Start a new run
-router.post("/", createRun);
+router.post("/", authenticateToken, createRun);
 
 // Record a drafted card at the end of a stage
-router.post("/:id/cards", draftCard);
+router.post("/:id/cards", authenticateToken, draftCard);
 
 // Update score / stage mid-run
-router.patch("/:id", updateRunProgress);
+router.patch("/:id", authenticateToken, updateRunProgress);
 
 // Finish a run with final score and stage
-router.post("/:id/complete", completeRun);
+router.post("/:id/complete", authenticateToken, completeRun);
 
 // Delete a run
-router.delete("/:id", deleteRun);
+router.delete("/:id", authenticateToken, deleteRun);
 
 export default router;

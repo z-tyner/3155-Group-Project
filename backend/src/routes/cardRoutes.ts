@@ -4,6 +4,7 @@
  */
 
 import { Router } from "express";
+import { authenticateToken } from "../middleware/auth.js";
 import {
     createCard,
     getAllCards,
@@ -27,12 +28,12 @@ router.get("/:id", getCardById);
 
 // Create a new card
 // TODO: add upload middleware here once upload.ts is implemented
-router.post("/", createCard);
+router.post("/", authenticateToken, createCard);
 
 // Update an existing card
-router.patch("/:id", updateCard);
+router.patch("/:id", authenticateToken, updateCard);
 
 // Delete an existing card
-router.delete("/:id", deleteCard);
+router.delete("/:id", authenticateToken, deleteCard);
 
 export default router;

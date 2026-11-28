@@ -110,3 +110,62 @@ export function executePlayerAction(
         logMessage: `${player.title} used ${action.name} on ${targetEnemy.name} dealing ${finalDamage} damage!${critText}${pierceText}`
     };
 }
+
+/**
+ * Determines which side acts first at the start of a round based on player Speed.
+ */
+export function resolveTurnInitiative(player: PlayerBattleState): "player" | "enemy" {
+    return player.speed ? "player" : "enemy";
+}
+
+/**
+ * Executes an enemy's basic attack against the player, factoring in accuracy,
+ * critical hits, armor piercing, defense mitigation, and active shield absorption.
+ */
+export function executeEnemyAction(
+    enemy: EnemyBattleState,
+    player: PlayerBattleState
+): CombatTurnResult {
+    const hitRoll = Math.random() * 100;
+    if (hitRoll > enemy.accuracy) {
+        return {
+            actorName: enemy.name,
+            actionName: "Attack",
+            category: "offensive",
+            targetName: player.title,
+            hit: false,
+            crit: false,
+            damageDealt: 0,
+            shieldApplied: 0,
+            targetDefeated: false,
+            logMessage: `${enemy.name}'s attack missed ${player.title}!`
+        };
+    }
+
+    const isCrit = Math.random() * 100 <= enemy.crit_chance;
+    const rawDamage = isCrit ? enemy.attack * 2 : enemy.attack;
+    const mitigatedDamage = calculateDamage(rawDamage, player.defense, enemy.armor_piercing);
+
+    const absorbed = Math.min(player.activeShield, mitigatedDamage);
+    player.activeShield = Math.max(0, player.activeShield - absorbed);
+    const finalDamage = Math.max(0, mitigatedDamage - absorbed);
+
+    player.currentHp = Math.max(0, player.currentHp - finalDamage);
+    const isDefeated = player.currentHp === 0;
+
+    const critText = isCrit ? " Critical hit!" : "";
+    const shieldText = absorbed > 0 ? ` (${absorbed} blocked by shield)` : "";
+
+    return {
+        actorName: enemy.name,
+        actionName: "Attack",
+        category: "offensive",
+        targetName: player.title,
+        hit: true,
+        crit: isCrit,
+        damageDealt: finalDamage,
+        shieldApplied: 0,
+        targetDefeated: isDefeated,
+        logMessage: `${enemy.name} attacked ${player.title} for ${finalDamage} damage!${critText}${shieldText}`
+    };
+}

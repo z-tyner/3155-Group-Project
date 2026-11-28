@@ -4,6 +4,7 @@
  */
 
 import { Router } from "express";
+import { authenticateToken } from "../middleware/auth.js";
 import {
     createCharacter,
     getAllCharacters,
@@ -22,12 +23,12 @@ router.get("/:id", getCharacterById);
 
 // Create a new character
 // TODO: add multipart sprite upload middleware here once upload.ts is implemented
-router.post("/", createCharacter);
+router.post("/", authenticateToken, createCharacter);
 
 // Update an existing character (creator only)
-router.patch("/:id", updateCharacter);
+router.patch("/:id", authenticateToken, updateCharacter);
 
 // Delete an existing character (creator only)
-router.delete("/:id", deleteCharacter);
+router.delete("/:id", authenticateToken, deleteCharacter);
 
 export default router;
